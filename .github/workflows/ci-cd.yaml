@@ -1,39 +1,23 @@
-name: Node.js CI/CD with Kubernetes
+name: Local CI/CD Pipeline
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-push:
-    name: Build Docker Image and Push to Docker Hub
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+      - name: Build Docker image locally
+        run: |
+          docker build -t my-node-app:latest .
 
-    - name: Install dependencies
-      run: |
-        cd app
-        npm install
-
-    - name: Build Docker image
-      run: |
-        docker build -t my-node-app ./app
-        docker tag my-node-app:latest nmaxdream/my-node-app:latest
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: nmaxdream
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Push Docker image
-      run: |
-        docker push nmaxdream/my-node-app:latest
+      - name: Deploy to Kubernetes (local)
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/ingress.yaml
