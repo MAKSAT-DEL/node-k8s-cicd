@@ -1,0 +1,32 @@
+name: Node K8s CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: app
+        run: npm install
+
+      - name: Build Docker image
+        run: docker build -t my-node-app:ci .
+
+      - name: Validate Kubernetes manifests
+        run: |
+          kubectl version --client
+          kubectl apply --dry-run=client -f k8s/
