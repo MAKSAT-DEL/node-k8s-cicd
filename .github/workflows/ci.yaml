@@ -32,7 +32,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
 
       - name: Set up Kind cluster
-        uses: engineerd/setup-kind@v0.6.0
+        uses: engineerd/setup-kind@v0.8.0
         with:
           version: v0.21.0
 
