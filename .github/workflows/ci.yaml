@@ -38,7 +38,7 @@ jobs:
 
       # Kind cluster setup
       - name: Set up Kind cluster
-        uses: engineerd/setup-kind@v0.12.0
+        uses: engineerd/setup-kind@v0.11.0
         with:
           version: v0.21.0
 
