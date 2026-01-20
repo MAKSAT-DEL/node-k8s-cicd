@@ -31,14 +31,18 @@ jobs:
           docker tag my-node-app:latest ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
 
-      # 🔥 SORUN ÇÖZÜLEN YER
-      - name: Set up Kind cluster
-        uses: engineerd/setup-kind@main
-        with:
-          version: v0.21.0
+      # 🔥 KIND MANUAL INSTALL (EN SAĞLAM YOL)
+      - name: Install Kind
+        run: |
+          curl -Lo kind https://kind.sigs.k8s.io/dl/v0.21.0/kind-linux-amd64
+          chmod +x kind
+          sudo mv kind /usr/local/bin/kind
+
+      - name: Create Kind cluster
+        run: kind create cluster --name cicd-cluster
 
       - name: Load image into Kind
-        run: kind load docker-image my-node-app:latest
+        run: kind load docker-image my-node-app:latest --name cicd-cluster
 
       - name: Deploy to Kubernetes
         run: |
