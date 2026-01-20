@@ -11,48 +11,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # repo'yu çek
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Docker Buildx setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # DockerHub login
-      - name: Log in to DockerHub
-        uses: docker/login-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Docker image build
       - name: Build Docker image
         run: docker build -t my-node-app:latest .
 
-      # Docker image push
       - name: Push Docker image
         run: |
           docker tag my-node-app:latest ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
 
-      # Kind cluster setup
+      # 🔥 SORUN ÇÖZÜLEN YER
       - name: Set up Kind cluster
-        uses: engineerd/setup-kind@v0.10.0
+        uses: engineerd/setup-kind@main
         with:
           version: v0.21.0
 
-      # Docker image'ı Kind cluster'a yükle
-      - name: Load Docker image into Kind
+      - name: Load image into Kind
         run: kind load docker-image my-node-app:latest
 
-      # Kubernetes manifestlerini uygula
-      - name: Apply Kubernetes manifests
+      - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/ingress.yaml
 
-      # Pod durumunu kontrol et
-      - name: Check Pods
+      - name: Check pods
         run: kubectl get pods -o wide
